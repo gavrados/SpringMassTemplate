@@ -108,6 +108,7 @@ void addParticles()
         particleArray[i] = particle;
 
     }
+    //remember to un transform
 }
 
 void addSprings()
@@ -153,7 +154,7 @@ void Start()
      * InitParticles()
      * InitPlane()
      * UpdateMesh() (remember the hint above regarding global and local coords)
-     * ResetParticleForces()
+     * ResetParticleForces() (call before update mesh in update())
      * ...
      ***/
 
