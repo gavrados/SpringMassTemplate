@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 
 // Check this out we can require components be on a game object!
@@ -46,7 +47,7 @@ public class BParticleSimMesh : MonoBehaviour
     public float defaultSpringKS = 100.0f;      // default spring coefficient with default 100
     public float defaultSpringKD = 1.0f;        // default spring daming coefficient with default 1
 
-    public bool debugRender = false;            // To render or not to render
+    public bool debugRender = true;            // To render or not to render
 
 
     /*** 
@@ -62,6 +63,16 @@ public class BParticleSimMesh : MonoBehaviour
      * - array of particles (BParticle[])
      * - the plane (BPlane)
      ***/
+
+    public Transform groundPlaneTrans;
+    public bool handlePlaneCollisions;
+    public float particleMass;
+    public bool use_gravity = true;
+    public Vector3 gravity = new Vector3(0f, -9.8f, 0f);
+
+    private Mesh mesh;
+    private BParticle[] particleArray;
+    private BPlane plane;
 
 
 
@@ -79,12 +90,66 @@ public class BParticleSimMesh : MonoBehaviour
     ///         on initialization. Then when updating you need to remember a particular trick about the spring forces
     ///         generated between particles. 
     /// </summary>
-    void Start()
+
+    /// creates particles from mesh vertices and adds to particleArray
+BParticle[] addParticles(Mesh m, BParticle[] partArr)
+{
+    partArr = new BParticle[m.vertices.Length];
+
+    for (int i = 0; i < partArr.Length; i++)
     {
+        BParticle particle = new BParticle();
+        particle.position = transform.TransformPoint(m.vertices[i]);
+        particle.velocity = Vector3.zero;
+        particle.mass = particleMass;
+
+        particle.attachedSprings = new List<BSpring>();
+
+        partArr[i] = particle;
 
     }
+        return partArr;
+}
 
+BParticle[] addSprings(BParticle[] parAr)
+{
+    for (int i = 0; i < parAr.Length; i++)
+    {
+        for (int j = i + 1; j < parAr.Length; j++)
+        {
+            BSpring spring = new BSpring();
 
+            spring.kd = defaultSpringKD;
+            spring.ks = defaultSpringKS;
+
+            spring.restLength = Vector3.Distance(
+                parAr[i].position,
+                parAr[j].position);
+
+            spring.attachedParticle = j;
+
+                parAr[i].attachedSprings.Add(spring);
+
+        }
+    }
+        return parAr;
+}
+void Start()
+{
+    mesh = GetComponent<MeshFilter>().mesh;
+
+    particleArray = addParticles(mesh, particleArray);
+
+    particleArray = addSprings(particleArray);
+
+}
+
+    //updateMesh loop thru every particle, in this loop accumulate force from every spring,
+    //then change particle's position (f = ma)
+void updateMesh(p)
+    {
+        for 
+    }
 
     /*** BIG HINT: My solution code has as least the following functions
      * InitParticles()
@@ -99,23 +164,33 @@ public class BParticleSimMesh : MonoBehaviour
     /// <summary>
     /// Draw a frame with some helper debug render code
     /// </summary>
-    public void Update()
+public void Update()
+{
+    /* This will work if you have a correctly made particles array */
+    if (debugRender)
     {
-        /* This will work if you have a correctly made particles array
-        if (debugRender)
+        for (int i = 0; i < particleArray.Length; i++)
         {
-            int particleCount = particles.Length;
-            for (int i = 0; i < particleCount; i++)
-            {
-                Debug.DrawLine(particles[i].position, particles[i].position + particles[i].currentForces, Color.blue);
+            // Draw particle position
+            Debug.DrawLine(
+                particleArray[i].position,
+                particleArray[i].position + Vector3.up * 0.05f,
+                Color.blue
+            );
 
-                int springCount = particles[i].attachedSprings.Count;
-                for (int j = 0; j < springCount; j++)
-                {
-                    Debug.DrawLine(particles[i].position, particles[particles[i].attachedSprings[j].attachedParticle].position, Color.red);
-                }
+            // Draw all springs connected to this particle
+            for (int j = 0; j < particleArray[i].attachedSprings.Count; j++)
+            {
+                int otherIndex =
+                    particleArray[i].attachedSprings[j].attachedParticle;
+
+                Debug.DrawLine(
+                    particleArray[i].position,
+                    particleArray[otherIndex].position,
+                    Color.red
+                );
             }
         }
-        */
     }
+}
 }
