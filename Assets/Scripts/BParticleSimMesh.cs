@@ -92,30 +92,29 @@ public class BParticleSimMesh : MonoBehaviour
     /// </summary>
 
     /// creates particles from mesh vertices and adds to particleArray
-BParticle[] addParticles(Mesh m, BParticle[] partArr)
+void addParticles()
 {
-    partArr = new BParticle[m.vertices.Length];
+    particleArray = new BParticle[mesh.vertices.Length];
 
-    for (int i = 0; i < partArr.Length; i++)
+    for (int i = 0; i < particleArray.Length; i++)
     {
         BParticle particle = new BParticle();
-        particle.position = transform.TransformPoint(m.vertices[i]);
+        particle.position = transform.TransformPoint(mesh.vertices[i]);
         particle.velocity = Vector3.zero;
         particle.mass = particleMass;
 
         particle.attachedSprings = new List<BSpring>();
 
-        partArr[i] = particle;
+        particleArray[i] = particle;
 
     }
-        return partArr;
 }
 
-BParticle[] addSprings(BParticle[] parAr)
+void addSprings()
 {
-    for (int i = 0; i < parAr.Length; i++)
+    for (int i = 0; i < particleArray.Length; i++)
     {
-        for (int j = i + 1; j < parAr.Length; j++)
+        for (int j = i + 1; j < particleArray.Length; j++)
         {
             BSpring spring = new BSpring();
 
@@ -123,34 +122,33 @@ BParticle[] addSprings(BParticle[] parAr)
             spring.ks = defaultSpringKS;
 
             spring.restLength = Vector3.Distance(
-                parAr[i].position,
-                parAr[j].position);
+                particleArray[i].position,
+                particleArray[j].position);
 
             spring.attachedParticle = j;
 
-                parAr[i].attachedSprings.Add(spring);
+                particleArray[i].attachedSprings.Add(spring);
 
         }
     }
-        return parAr;
 }
 void Start()
 {
     mesh = GetComponent<MeshFilter>().mesh;
 
-    particleArray = addParticles(mesh, particleArray);
+    addParticles();
 
-    particleArray = addSprings(particleArray);
+    addSprings();
 
 }
 
     //updateMesh loop thru every particle, in this loop accumulate force from every spring,
     //then change particle's position (f = ma)
-void updateMesh(p)
+/*void updateMesh(p)
     {
         for 
     }
-
+*/
     /*** BIG HINT: My solution code has as least the following functions
      * InitParticles()
      * InitPlane()
